@@ -21,19 +21,19 @@ CMD_ADC_2048        =   0x06 # ADC OSR=2048
 CMD_ADC_4096        =   0x08 # ADC OSR=4096
 CMD_PROM_RD         =   0xA0 # Prom read command
 PROM_NB             =   8 #
-CMD_OSR = CMD_ADC_4096
+CMD_OSR = CMD_ADC_4096      #adc遺꾪빐 �μ뿉 �곕씪��寃곗젙 �쒕떎.
 
 pressure=0
 temperature =0
 raw_temp =0
 raw_press =0
 
-class Ms5611:
+class Ms_5611:
     i2c = None
     data =[0,0,0]
     on_chip_rom =[0,0,0,0,0,0,0,0]
  
-    def __init__(self, address, busId, debug=False):
+    def __init__(self, address = CSB_LOW_ADDRESS, busId = I2C_CHANNEL, debug=False):
         self.i2c = smbus.SMBus(busId)
         self.address = address
         self.debug = debug
@@ -63,24 +63,23 @@ class Ms5611:
     def get_pressure(self):
         self.raw_pressure = self.read_adc()
     def baro_read(self):
-#        print ("time %0.3f",elapased_time)
-        if self.read_status ==0: #클래스를 처음 호출시 측정 시작 준비
-            self.start_update_temp()
-            self.read_status =1
-            self.elapased_time=self.start_time=time.time()
+#        if self.read_status ==0: #�대옒�ㅻ� 泥섏쓬 �몄텧��痢≪젙 �쒖옉 以�퉬
+#            self.start_update_temp()
+#            self.read_status =1
+#            self.elapased_time=self.start_time=time.time()
 
-        self.elapased_time = time.time()-self.start_time
-        if self.elapased_time < MS5611_CONVERSION_TIME:
-            time.sleep(MS5611_CONVERSION_TIME-self.elapased_time)   #부족시간 만틈 기다린다.
-#            time.sleep(MS5611_CONVERSION_TIME)
-#            time.sleep(MS5611_CONVERSION_TIME)
+#        self.elapased_time = time.time()-self.start_time
+#        if self.elapased_time < MS5611_CONVERSION_TIME:
+#            time.sleep(MS5611_CONVERSION_TIME-self.elapased_time)   #遺�”�쒓컙 留뚰땲 湲곕떎由곕떎.
+            time.sleep(MS5611_CONVERSION_TIME)   #遺�”�쒓컙 留뚰땲 湲곕떎由곕떎.
             raw_temp = self.get_temp()
             self.start_update_press()
             time.sleep(MS5611_CONVERSION_TIME)
             raw_press = self.get_pressure()
-            self.start_update_temp() #다음 측정을 위해서 미리 온도값 변환을 전송한다.
-            self.start_time=time.time() #측정 개시시간을 기록
-            self.calculate()
+            self.start_update_temp() #�ㅼ쓬 痢≪젙���꾪빐��誘몃━ �⑤룄媛�蹂�솚���꾩넚�쒕떎.
+#            self.start_time=time.time() #痢≪젙 媛쒖떆�쒓컙��湲곕줉
+            self.pressure, self.temperature = self.calculate()
+            return (self.pressure , self.temperature)
             
     def calculate(self):
         dT = self.raw_temperature - self.on_chip_rom[5] * 256
@@ -98,16 +97,14 @@ class Ms5611:
                 off -= 7 * delt
                 sens -= (11 * delt) >> 1
         press = (((long(self.raw_pressure) * sens) >> 21) - off) >> 15
-        self.pressure =round(float(press)/100,2)
-        self.temperature = round(float(temp)/100,2)
-            
-    def display(self):
-        print("Press =%4.2f kPa, Temperatur =%3.2f degC" %(self.pressure,self.temperature))
+        pressure =round(float(press)/100.0,2)
+        temperature = round(float(temp)/100.0,2)
+        return (pressure, temperature)
         
+if __name__ =="__main__":
+    press = Ms_5611()
+    press.init()
+    while True:    
+        air_pressure, air_temperature = press.baro_read()
+        print("Air Pressure= %4.2fkPa, Air Temperatur= %3.2fdegC" %(air_pressure, air_temperature))
 
-MS5611 = Ms5611(CSB_LOW_ADDRESS, I2C_CHANNEL)
-#MS5611.reset()
-while True:   
- #   MS5611.init()
-    MS5611.baro_read()
-    MS5611.display()
