@@ -103,7 +103,7 @@ class Ms_5611:
         
 if __name__ =="__main__":
     press = Ms_5611()
-    press.init()
+#    press.init()
     while True:    
         air_pressure, air_temperature = press.baro_read()
         print("Air Pressure= %4.2fkPa, Air Temperatur= %3.2fdegC" %(air_pressure, air_temperature))
