@@ -1,6 +1,3 @@
-#https://bitbucket.org/thinkbowl/i2clibraries/downloads
-#http://think-bowl.com/raspberry-pi/i2c-python-library-lcd-with-the-raspberry-pi/
-
 import smbus
 from time import *
 
@@ -167,7 +164,7 @@ if __name__ =="__main__":
 	clcd.clear()
 	clcd.backLightOn()
 	clcd.setPosition(1, 0)
-	clcd.writeString("Raspberry Pi")
-	clcd.setPosition(2, 3)
-	clcd.writeString("CLCD Test")
+	clcd.writeString("test string")
+	clcd.setPosition(2, 0)
+	clcd.writeString("for the Pi")
 	
