@@ -87,6 +87,7 @@ class Voltage_cal(Ads7828):
         self.temp_offset =[0.0]*8
         self.temp_devider = [1.0]*8
         self.adc_ratio_int()
+        Ads7828()
     def adc_ratio_int(self):
         self.temp_ratio(0) # ADC temperature sensor setting
         self.ratio_set(1,0,1) #direct input adc(none pull-up & pull-down resist)
@@ -121,7 +122,7 @@ class Voltage_cal(Ads7828):
                %(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7]))
 
 if __name__ =="__main__":
-    adc = Ads7828()
+#    adc = Ads7828()
     adc_measu = Voltage_cal()
     while True:
 #        adc.all_ch_raw_adc_display() 
